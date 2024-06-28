@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: postgres_nirs
+    restart: always
+    build:
+      context: db
+      dockerfile: db/build/postgres.Dockerfile
+    volumes:
+      - type: volume
+        source: postgresdb-data
+        target: /var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - ${DB_PORT}:8100
+    networks:
+      - nirs-network
+  main:
+    depends_on:
+      - db
+    container_name: mainService
+    build:
+      context: db
+      dockerfile: db/build/main.Dockerfile
+    ports:
+      - '8101:8101'
+    env_file:
+      - .env
+    networks:
+      - nirs-network
+
+volumes:
+  postgresdb-data:
+    driver: local
+
+networks:
+  tean-network:
+    name: tean-network
+    driver: bridge
